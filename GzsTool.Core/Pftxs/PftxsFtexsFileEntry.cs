@@ -39,9 +39,13 @@ namespace GzsTool.Core.Pftxs
         {
             bool filePathIsHash = true;
 
+            int extensionIndex = FilePath.IndexOf(".", StringComparison.Ordinal);
+            string fileNameWithoutExtension = FilePath.Substring(0, extensionIndex);
+            string extension = FilePath.Substring(extensionIndex + 1, FilePath.Length - extensionIndex - 1);
+
             try
             {
-                Hash = Convert.ToUInt64(Path.GetFileNameWithoutExtension(FilePath), 16);
+                Hash = Convert.ToUInt64(fileNameWithoutExtension, 16);
             }
             catch
             {
@@ -50,9 +54,9 @@ namespace GzsTool.Core.Pftxs
 
             if(filePathIsHash)
             {
-                ulong extension = Hashing.HashFileExtension(Path.GetExtension(FilePath).Substring(1));
+                ulong extensionHash = Hashing.HashFileExtension(extension);
 
-                Hash |= (extension << 51);
+                Hash |= (extensionHash << 51);
             } //if ends
             else
             {
