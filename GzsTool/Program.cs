@@ -22,6 +22,15 @@ namespace GzsTool
 
         private static void Main(string[] args)
         {
+            if(args[0] == "-d")
+            {
+                if(args[1] == "-h")
+                    Console.WriteLine(Hashing.HashFileName(args[2]));
+                if(args[1] == "-he")
+                    Console.WriteLine(Hashing.HashFileExtension(args[2]).ToString("x"));
+                return;
+            } //if ends
+
             if (args.Length == 1)
             {
                 ReadDictionaries();

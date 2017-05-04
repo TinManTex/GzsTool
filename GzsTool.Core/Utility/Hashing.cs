@@ -160,7 +160,7 @@ namespace GzsTool.Core.Utility
 
         private static readonly Dictionary<ulong, string> ExtensionsMap = FileExtensions.ToDictionary(HashFileExtension);
 
-        private static ulong HashFileExtension(string fileExtension)
+        public static ulong HashFileExtension(string fileExtension) //from private to public
         {
             return HashFileName(fileExtension, false) & 0x1FFF;
         }
