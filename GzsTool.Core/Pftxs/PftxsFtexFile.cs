@@ -14,7 +14,7 @@ namespace GzsTool.Core.Pftxs
     {
         private const int HeaderSize = 32;
         
-        [XmlAttribute("Hash")]
+        [XmlIgnore]
         public ulong Hash { get; set; }
 
         [XmlArray("Entries")]
