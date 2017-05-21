@@ -160,6 +160,8 @@ namespace GzsTool.Core.Utility
 
         private static readonly Dictionary<ulong, string> ExtensionsMap = FileExtensions.ToDictionary(HashFileExtension);
 
+        public const ulong MetaFlag = 0x4000000000000;
+
         public static ulong HashFileExtension(string fileExtension) //from private to public
         {
             return HashFileName(fileExtension, false) & 0x1FFF;
@@ -173,13 +175,22 @@ namespace GzsTool.Core.Utility
                 text = index == -1 ? text : text.Substring(0, index);
             }
 
-            bool assetFlag = false;
+            bool metaFlag = false;
             const string assetsConstant = "/Assets/";
             if (text.StartsWith(assetsConstant))
             {
                 text = text.Substring(assetsConstant.Length);
-                assetFlag = true;
+
+                if (text.StartsWith("tpptest"))
+                {
+                    metaFlag = true;
+                }
             }
+            else
+            {
+                metaFlag = true;
+            }
+            
             text = text.TrimStart('/');
 
             const ulong seed0 = 0x9ae16a3b2f90404f;
@@ -190,7 +201,10 @@ namespace GzsTool.Core.Utility
             }
             ulong seed1 = BitConverter.ToUInt64(seed1Bytes, 0);
             ulong maskedHash = CityHash.CityHash.CityHash64WithSeeds(text, seed0, seed1) & 0x3FFFFFFFFFFFF;
-            return assetFlag ? maskedHash : maskedHash | 0x4000000000000;
+
+            return metaFlag
+                ? maskedHash | MetaFlag
+                : maskedHash;
         }
         
         public static ulong HashFileNameLegacy(string text, bool removeExtension = true)
