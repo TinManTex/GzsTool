@@ -27,9 +27,11 @@ namespace GzsTool
                 if (args[0] == "-d")
                 {
                     if (args[1] == "-h")
-                        Console.WriteLine(Hashing.HashFileName(args[2]));
+                        Console.WriteLine(Hashing.HashFileName(args[2]).ToString("x"));
                     if (args[1] == "-he")
                         Console.WriteLine(Hashing.HashFileExtension(args[2]).ToString("x"));
+                    if (args[1] == "-hwe")
+                        Console.WriteLine(Hashing.HashFileNameWithExtension(args[2]).ToString("x"));
 
                     return;
                 } //if ends
