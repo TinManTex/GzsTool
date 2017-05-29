@@ -28,6 +28,8 @@ namespace GzsTool
                 {
                     if (args[1] == "-h")
                         Console.WriteLine(Hashing.HashFileName(args[2]).ToString("x"));
+                    if (args[1] == "-hl")
+                        Console.WriteLine(Hashing.HashFileNameLegacy(args[2]).ToString("x"));
                     if (args[1] == "-he")
                         Console.WriteLine(Hashing.HashFileExtension(args[2]).ToString("x"));
                     if (args[1] == "-hwe")
