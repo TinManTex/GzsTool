@@ -22,7 +22,7 @@ namespace GzsTool
 
         private static void Main(string[] args)
         {
-            if (args.Length > 0)
+            if (args.Length > 0 && args.Length <= 2)
             {
                 if (args[0] == "-d")
                 {
@@ -37,15 +37,20 @@ namespace GzsTool
 
                     return;
                 } //if ends
-            } //if ends
 
-            if (args.Length == 1)
-            {
                 ReadDictionaries();
                 string path = args[0];
                 if (!Path.IsPathRooted(path))
                 {
                     path = Path.GetFullPath(path);
+                }
+
+                bool outputHashes = false;
+                if (args.Length > 1) {
+                    if (args[1].ToLower() == "-outputhashes" || args[1].ToLower() == "-o") 
+                    {
+                        outputHashes = true;
+                    }
                 }
 
                 if (File.Exists(path))
@@ -54,7 +59,21 @@ namespace GzsTool
                     switch (extension)
                     {
                         case ".dat":
-                            ReadArchive<QarFile>(path);
+                            QarFile qarFile = ReadArchive<QarFile>(path, outputHashes);
+                            if (outputHashes) 
+                            {
+                                HashSet<string> uniquePathHashes = new HashSet<string>();
+                                foreach (QarEntry entry in qarFile.Entries) 
+                                {
+                                    ulong pathHash = entry.Hash & 0x3FFFFFFFFFFFF;
+                                    uniquePathHashes.Add(pathHash.ToString("x"));
+                                }
+                                List<string> pathHashes = uniquePathHashes.ToList<string>();
+                                pathHashes.Sort();
+                                string fileDirectory = Path.GetDirectoryName(path);
+                                string pathHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_pathHashes.txt", Path.GetFileName(path)));
+                                File.WriteAllLines(pathHashesOutputPath, pathHashes.ToArray<string>());
+                            }
                             return;
                         case ".fpk":
                         case ".fpkd":
@@ -121,10 +140,13 @@ namespace GzsTool
                               "  GzsTool file_path.fpk.xml  - Repacks the fpk file\n" +
                               "  GzsTool file_path.fpkd.xml - Repacks the fpkd file\n" +
                               "  GzsTool file_path.pftxs.xml- Repacks the pftxs file\n" +
-                              "  GzsTool file_path.sbp.xml  - Repacks the sbp file");
+                              "  GzsTool file_path.sbp.xml  - Repacks the sbp file\n" +
+                              "Options:\n" +
+                              "  -OutputHashes or - o(case insensitive)\n" +
+                              "  Writes the PathCode64 hashes for files in Qar archive to < fileName > _pathHashes.txt");
         }
 
-        private static void ReadArchive<T>(string path) where T : ArchiveFile, new()
+        private static T ReadArchive<T>(string path, bool skipWrite = false) where T : ArchiveFile, new()
         {
             string fileDirectory = Path.GetDirectoryName(path);
             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
@@ -140,13 +162,16 @@ namespace GzsTool
                 T file = new T();
                 file.Name = Path.GetFileName(path);
                 file.Read(input);
-                foreach (var exportedFile in file.ExportFiles(input))
-                {
-                    Console.WriteLine(exportedFile.FileName);
-                    outputDirectory.WriteFile(exportedFile.FileName, exportedFile.DataStream);
+                if (skipWrite == false) {
+                    foreach (var exportedFile in file.ExportFiles(input)) {
+                        Console.WriteLine(exportedFile.FileName);
+                        outputDirectory.WriteFile(exportedFile.FileName, exportedFile.DataStream);
+                    }
                 }
 
-                ArchiveSerializer.Serialize(xmlOutput, file);
+                ArchiveSerializer.Serialize(xmlOutput, file);//tex could probably skip this too but would have to break out of using xmlOutput else would leave empty xml
+
+                return file;
             }
         }
 
