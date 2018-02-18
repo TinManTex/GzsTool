@@ -45,6 +45,7 @@ namespace GzsTool
                     path = Path.GetFullPath(path);
                 }
 
+                //tex
                 bool outputHashes = false;
                 if (args.Length > 1) {
                     if (args[1].ToLower() == "-outputhashes" || args[1].ToLower() == "-o") 
@@ -63,16 +64,29 @@ namespace GzsTool
                             if (outputHashes) 
                             {
                                 HashSet<string> uniquePathHashes = new HashSet<string>();
+                                HashSet<string> uniqueExtensionHashes = new HashSet<string>();
+                                List<string> pathHashesRaw = new List<string>();
                                 foreach (QarEntry entry in qarFile.Entries) 
                                 {
                                     ulong pathHash = entry.Hash & 0x3FFFFFFFFFFFF;
+                                    ulong extensionHash = entry.Hash >> 51;
                                     uniquePathHashes.Add(pathHash.ToString("x"));
+                                    pathHashesRaw.Add(entry.Hash.ToString());
+                                    uniqueExtensionHashes.Add(extensionHash.ToString());
                                 }
                                 List<string> pathHashes = uniquePathHashes.ToList<string>();
                                 pathHashes.Sort();
                                 string fileDirectory = Path.GetDirectoryName(path);
                                 string pathHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_pathHashes.txt", Path.GetFileName(path)));
-                                File.WriteAllLines(pathHashesOutputPath, pathHashes.ToArray<string>());
+                                File.WriteAllLines(pathHashesOutputPath, pathHashes);
+
+                                pathHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_pathHashesRaw.txt", Path.GetFileName(path)));
+                                File.WriteAllLines(pathHashesOutputPath, pathHashesRaw);
+
+                                List<string> extensionHashes = uniqueExtensionHashes.ToList<string>();
+                                extensionHashes.Sort();
+                                string extensionHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_extensionHashes.txt", Path.GetFileName(path)));
+                                File.WriteAllLines(extensionHashesOutputPath, extensionHashes);
                             }
                             return;
                         case ".fpk":

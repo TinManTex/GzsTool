@@ -18,7 +18,7 @@ GzsTool file_path|folder_path
 Options
 -------
 -OutputHashes or -o (case insensitive)
-Writes the PathCode64 hashes for files in Qar archive to <fileName>_pathHashes.txt, will exit without extracting files.
+Writes the PathCode64 and ExtensionCode64 hashes for files in Qar archive to <fileName>_pathHashes.txt / _extensionHashes.txt, will exit without extracting files.
  
 Examples
 --------

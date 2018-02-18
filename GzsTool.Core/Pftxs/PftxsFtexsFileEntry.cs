@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using GzsTool.Core.Utility;
-using System;
 
 namespace GzsTool.Core.Pftxs
 {
@@ -12,7 +11,7 @@ namespace GzsTool.Core.Pftxs
     {
         public const int HeaderSize = 16;
 
-        [XmlIgnore]
+        [XmlAttribute("Hash")]
         public ulong Hash { get; set; }
 
         [XmlAttribute("FilePath")]
@@ -37,31 +36,14 @@ namespace GzsTool.Core.Pftxs
 
         public void CalculateHash()
         {
-            bool filePathIsHash = true;
-
-            int extensionIndex = FilePath.IndexOf(".", StringComparison.Ordinal);
-            string fileNameWithoutExtension = FilePath.Substring(0, extensionIndex);
-            string extension = FilePath.Substring(extensionIndex + 1, FilePath.Length - extensionIndex - 1);
-
-            try
-            {
-                Hash = Convert.ToUInt64(fileNameWithoutExtension, 16);
-            }
-            catch
-            {
-                filePathIsHash = false;
-            }
-
-            if(filePathIsHash)
-            {
-                ulong extensionHash = Hashing.HashFileExtension(extension);
-
-                Hash |= (extensionHash << 51);
-            } //if ends
-            else
+            if (Hash == 0)
             {
                 Hash = Hashing.HashFileNameWithExtension(FilePath);
-            } //else ends
+            }
+            else
+            {
+                DebugAssertHashMatches();
+            }
         }
 
         [Conditional("DEBUG")]

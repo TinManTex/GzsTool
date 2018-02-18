@@ -111,6 +111,7 @@ namespace GzsTool.Core.Utility
             "nta",
             "obr",
             "obrb",
+            "param",
             "parts",
             "path",
             "pftxs",
@@ -155,6 +156,7 @@ namespace GzsTool.Core.Utility
             "vo.evf",
             "vpc",
             "wem",
+            "wmv",
             "xml"
         };
 
@@ -237,6 +239,8 @@ namespace GzsTool.Core.Utility
                 extensionPart = filePath.Substring(extensionIndex + 1, filePath.Length - extensionIndex - 1);
             }
 
+            //tex TODO: parse _unknown to recover typeId for unknown extensions
+
             ulong typeId = 0;
             var extensions = ExtensionsMap.Where(e => e.Value == extensionPart).ToList();
             if (extensions.Count == 1)
@@ -280,6 +284,7 @@ namespace GzsTool.Core.Utility
             if (!ExtensionsMap.TryGetValue(extensionHash, out fileExtension))
             {
                 fileExtension = "_unknown";
+                fileExtension += "_" + extensionHash;//tex TODO rethink
                 foundFileName = false;
             }
             else
