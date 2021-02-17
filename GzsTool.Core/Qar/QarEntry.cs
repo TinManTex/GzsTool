@@ -306,6 +306,7 @@ namespace GzsTool.Core.Qar
                     size -= 16;
                     pDest += 4;
                 }
+
                 for (; size >= 4; pSrc++)
                 {
                     *pDest = currentKey ^ *pSrc;

@@ -128,7 +128,6 @@ namespace GzsTool.Core.Qar
                     uint rotated = (i1 >> rotation) | (i1 << (32 - rotation)); // ROR
                     xor ^= rotated;
                 }
-
             }
 
             return result;

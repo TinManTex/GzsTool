@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 using GzsTool.Core.Common;
 using GzsTool.Core.Common.Interfaces;
@@ -56,6 +57,7 @@ namespace GzsTool
 
                 if (File.Exists(path))
                 {
+                    string fileDirectory = Path.GetDirectoryName(path);
                     string extension = Path.GetExtension(path);
                     switch (extension)
                     {
@@ -73,10 +75,10 @@ namespace GzsTool
                                     uniquePathHashes.Add(pathHash.ToString("x"));
                                     pathHashesRaw.Add(entry.Hash.ToString());
                                     uniqueExtensionHashes.Add(extensionHash.ToString());
-                                }
+                                }//foreach qarFile.Entries
+
                                 List<string> pathHashes = uniquePathHashes.ToList<string>();
                                 pathHashes.Sort();
-                                string fileDirectory = Path.GetDirectoryName(path);
                                 string pathHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_pathHashes.txt", Path.GetFileName(path)));
                                 File.WriteAllLines(pathHashesOutputPath, pathHashes);
 
@@ -87,11 +89,30 @@ namespace GzsTool
                                 extensionHashes.Sort();
                                 string extensionHashesOutputPath = Path.Combine(fileDirectory, string.Format("{0}_extensionHashes.txt", Path.GetFileName(path)));
                                 File.WriteAllLines(extensionHashesOutputPath, extensionHashes);
-                            }
+                            }//if outputHashes
                             return;
                         case ".fpk":
                         case ".fpkd":
-                            ReadArchive<FpkFile>(path);
+                            FpkFile fpkFile = ReadArchive<FpkFile>(path, outputHashes);
+                            if (outputHashes && fpkFile.Entries != null) {
+                                HashSet<string> uniquePathHashes = new HashSet<string>();
+                                foreach (var entry in fpkFile.Entries) {
+                                    if (entry.EncryptedFilePath != null) {
+                                        //tex: a md5hash DEBUGNOW decide how I want to represent, DEBUGNOW dont use default encoding
+                                        //string hash = Encoding.Default.GetString(entry.EncryptedFilePath);
+                                        string hash = BitConverter.ToString(entry.Md5Hash);//tex converts to hex pairs seperated by -
+                                        hash = hash.Replace("-", "");//tex remove seperators
+                                        uniquePathHashes.Add(hash);
+                                    }//if EncryptedFilePath
+                                }//foreach entry
+
+                                if (uniquePathHashes.Count() > 0) {
+                                    List<string> pathHashes = uniquePathHashes.ToList<string>();
+                                    pathHashes.Sort();
+                                    string pathHashesOutputPath = Path.Combine(fileDirectory, $"{Path.GetFileName(path)}_FilePath_Md5HashText.txt");//SYNC: mgsv-lookup-strings/fpk/fpk_hash_types.json
+                                    File.WriteAllLines(pathHashesOutputPath, pathHashes);
+                                }
+                            }//if outputHashes
                             return;
                         case ".pftxs":
                             ReadArchive<PftxsFile>(path);
@@ -102,8 +123,8 @@ namespace GzsTool
                         case ".xml":
                             WriteArchive(path);
                             return;
-                    }
-                }
+                    }//switch extension
+                }//if File.Exists
                 else if (Directory.Exists(path))
                 {
                     ReadFpkArchives(path);

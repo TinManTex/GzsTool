@@ -18,7 +18,9 @@ GzsTool file_path|folder_path
 Options
 -------
 -OutputHashes or -o (case insensitive)
-Writes the PathCode64 and ExtensionCode64 hashes for files in Qar archive to <fileName>_pathHashes.txt / _extensionHashes.txt, will exit without extracting files.
+Writes the PathCode64 and ExtensionCode64 hashes for files in Qar archive to <fileName>_pathHashes.txt / _extensionHashes.txt, 
+For fpk files will write FilePath Md5Hash (if MD5(FilePath) does not match Md5Hash), to <filename>_FilePath_Md5HashText.txt (same mgsv-lookup-strings hash_types identification for hashwrangler validation), for fpk_dictionary.
+Will exit without extracting files.
  
 Examples
 --------
